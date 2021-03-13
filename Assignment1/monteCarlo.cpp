@@ -6,8 +6,12 @@ using namespace std;
 double monteCarlo(double start, double end, int points, int threads){
     double h = (end-start)/points;
     double answer = 0;
-    for (int i=0;i<points;i++){
-        answer += cos(start + i*h);
+    int i ;
+    double f;
+    #pragma omp parallel for schedule(dynamic,threads)  default(none) private(i) shared(points,start,h,threads,end,f)  reduction(+:answer)
+    for (i=0;i<points;i++){
+        f = start + ((double)rand() / RAND_MAX)*(end-start);
+        answer += cos(f);
     }
     return (answer*h);
 }
@@ -19,8 +23,9 @@ int main(int argc, char* argv[])
     double pi = M_PI ;
     double start = -pi/2;
     double end = pi/2;
-    int points = 10000;
-    int threads = 1;
+    int points = 4000;
+    int threads = 2;
+    omp_set_num_threads(threads);
     double answer = monteCarlo(start,end,points,threads);
     auto e = chrono::steady_clock::now();
     auto diff = e - s;
