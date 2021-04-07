@@ -2,11 +2,11 @@
 #include <omp.h> 
 using namespace std;
 
-
+int size;
 
 vector<vector<float>> calculation(vector<vector<float>>A , vector<vector<float>>B) {
-    vector<vector<float>> C ( A.size(), vector<float> (A.size(), 0));
-    int N =  A.size();
+    vector<vector<float>> C( size, vector<float> (size, 0));
+    int N =  size;
     int i,j,k;
     #pragma omp parallel for schedule(static) private(i,j,k) shared(A,B,C)
     for (i = 0; i < N; ++i) {
@@ -29,50 +29,56 @@ vector<vector<float>> calculation(vector<vector<float>>A , vector<vector<float>>
     return (C);
 }
 
+void print_matrix(vector<vector<float>>X){
+    for(int i = 0; i < size; i++){
+        for(int j = 0; j < size; j++){
+            cout << setprecision(3) << X[i][j] << "\t";
+
+        }
+        cout << endl;
+    }
+    cout << endl;
+}
+
 
 int main(int argc, char* argv[])
 {
+    size = atoi(argv[1]);
+    cout << "Size :"<<size<<endl<<endl;
     int threads;
     #pragma omp parallel shared(threads)
         threads = omp_get_num_threads();
-        cout << " Number of threads : " << threads<<endl;
-    
-    vector<int> sizes; 
-    for (int i = 10 ; i <= 1000; i=i*10){
-        sizes.push_back(i);
-    }
-    vector<float> time; 
-    for (int i = 0; i < sizes.size(); i++ ){
-        vector<vector<float>> A, B;
-        // Creating random matrix A
-        for (int j = 0 ; j < sizes[i];j++){
-            vector <float> random ;
-            for (int k = 0 ; k < sizes[i];k++){
-                float randomNumber = ((float) rand()) / (float) RAND_MAX ;
-                random.push_back(randomNumber);
-            }
-            A.push_back(random);
-        }
-        // Creating random matrix B
-        for (int j = 0 ; j < sizes[i];j++){
-            vector <float> random ;
-            for (int k = 0 ; k < sizes[i];k++){
-                float randomNumber = ((float) rand()) / (float) RAND_MAX ;
-                random.push_back(randomNumber);
-            }
-            B.push_back(random);
-        }
-        auto s = chrono::steady_clock::now();
-        vector<vector<float>> answer = calculation(A,B);
-        auto e = chrono::steady_clock::now();
-        auto diff = e - s;
-        double mSecs =chrono::duration <double, milli> (diff).count();
-        time.push_back(mSecs);
-    }
+        cout<<"Number of threads : " << threads<<endl;    
 
-    cout<<"Sizes"<<"\t\t"<<"Time in ms"<<endl;
-    for (int i =0 ; i<sizes.size();i++){
-        cout<<sizes[i]<<"\t\t"<<time[i]<<endl; 
+    cout<<endl;
+    vector<vector<float>> A, B;
+    // Creating random matrix A
+    for (int j = 0 ; j < size;j++){
+        vector <float> random ;
+        for (int k = 0 ; k < size;k++){
+            float randomNumber = ((float) rand()) / (float) RAND_MAX ;
+            random.push_back(randomNumber);
+        }
+        A.push_back(random);
     }
+        // Creating random matrix B
+    for (int j = 0 ; j < size;j++){
+        vector <float> random ;
+        for (int k = 0 ; k < size;k++){
+            float randomNumber = ((float) rand()) / (float) RAND_MAX ;
+            random.push_back(randomNumber);
+        }
+        B.push_back(random);
+    }
+    auto s = chrono::steady_clock::now();
+    vector<vector<float>> answer = calculation(A,B);
+    auto e = chrono::steady_clock::now();
+    auto diff = e - s;
+    double mSecs =chrono::duration <double, milli> (diff).count();
+    cout << "Upper Triangular Matrix :"<<endl;
+    print_matrix(answer);
+    cout<<endl;
+    cout<<"Time in ms : "<<mSecs;
+    cout<<endl;
     return 0;
 }
