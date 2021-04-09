@@ -8,7 +8,7 @@ vector<vector<float>> calculation(vector<vector<float>>A , vector<vector<float>>
     vector<vector<float>> C( size, vector<float> (size, 0));
     int N =  size;
     int i,j,k;
-    #pragma omp parallel for schedule(static) private(i,j,k) shared(A,B,C)
+    #pragma omp parallel for schedule(dynamic) private(i,j,k) shared(A,B,C)
     for (i = 0; i < N; ++i) {
         for (j = 0; j < N; ++j) {
             for (k = 0; k < N; ++k) {
@@ -18,7 +18,7 @@ vector<vector<float>> calculation(vector<vector<float>>A , vector<vector<float>>
     }
     float r;
     for (i=0;i<N;i++){
-        #pragma omp parallel for schedule(static) private(j,k,r) shared(C)
+        #pragma omp parallel for schedule(dynamic) private(j,k,r) shared(C)
         for(j=i+1;j<N;j++){
             r = C[j][i]/C[i][i];
             for(k=0 ; k<N; k++){
@@ -32,7 +32,7 @@ vector<vector<float>> calculation(vector<vector<float>>A , vector<vector<float>>
 void print_matrix(vector<vector<float>>X){
     for(int i = 0; i < size; i++){
         for(int j = 0; j < size; j++){
-            cout << setprecision(3) << X[i][j] << "\t";
+            cout <<X[i][j] << "\t";
 
         }
         cout << endl;
@@ -43,6 +43,8 @@ void print_matrix(vector<vector<float>>X){
 
 int main(int argc, char* argv[])
 {
+    std::cout << std::fixed;
+    std::cout << std::setprecision(3);
     size = atoi(argv[1]);
     cout << "Size :"<<size<<endl<<endl;
     int threads;
